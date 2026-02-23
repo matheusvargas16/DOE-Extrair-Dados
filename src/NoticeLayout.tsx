@@ -8,30 +8,25 @@ interface NoticeLayoutProps {
 }
 
 export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeDate }) => {
-  // Group items into pairs for A4 landscape (2 notices per page)
-  const pairs: ExtractedData[][] = [];
-  for (let i = 0; i < items.length; i += 2) {
-    pairs.push(items.slice(i, i + 2));
-  }
-
   // Removed "Expediente" as requested
   const checkboxes = [
     ["Licença Prêmio", "Quinquênio(s)"],
     ["Avanço(s)", "Adicional de pessoas com deficiência"],
-    ["Promove por ... da Classe ... / ... a/c de ...", "Concede"],
-    ["Dispensa", "Indefere"],
-    ["Torna sem Efeito", "Altera o Nível"],
-    ["Revoga", "Retifica"],
-    ["Apostila", "Designa"],
-    ["Enquadra", "Coloca"],
-    ["Declara estável", "Aposenta"],
-    ["Aut. afastamento", "Admissão"],
-    ["Declara empossado", "Regularização Funcional"],
-    ["Exonera", "Disp. permuta"],
-    ["Ratifica o ato", "Torna sem efeito"]
+    ["Concede", "Dispensa"],
+    ["Indefere", "Torna sem Efeito"],
+    ["Altera o Nível", "Revoga"],
+    ["Retifica", "Apostila"],
+    ["Designa", "Enquadra"],
+    ["Coloca", "Declara estável"],
+    ["Aposenta", "Aut. afastamento"],
+    ["Admissão", "Declara empossado"],
+    ["Regularização Funcional", "Exonera"],
+    ["Disposição", "Ratifica o ato"],
+    ["Torna sem efeito", ""]
   ];
 
   const isChecked = (fullText: string, label: string) => {
+    if (!label) return false;
     const text = fullText.toUpperCase();
     const l = label.toUpperCase();
 
@@ -47,6 +42,7 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
     if (l === "APOSENTA" && text.includes("APOSENTA")) return true;
     if (l === "EXONERA" && (text.includes("EXONERA") || text.includes("EXONERAR"))) return true;
     if (l === "ADMISSÃO" && (text.includes("ADMISSÃO") || text.includes("ADMITE"))) return true;
+    if (l === "DISPOSIÇÃO" && (text.includes("DISPOSICAO") || text.includes("PERMUTA") || text.includes("DISP.PERMUTA"))) return true;
     if (l.includes("TORNA SEM EFEITO") && text.includes("TORNA SEM EFEITO")) return true;
     if (l.includes("LICENÇA PRÊMIO") && text.includes("LICENCA PREMIO")) return true;
     if (l.includes("QUINQUÊNIO") && (text.includes("QUINQUENIO") || text.includes("ADICIONAL DE TEMPO DE SERVICO"))) return true;
@@ -61,68 +57,69 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
 
   return (
     <div className="print-only">
-      {pairs.map((pair, pageIdx) => (
-        <div key={pageIdx} className="notices-grid">
-          {pair.map((item, localIdx) => {
-            const globalIdx = pageIdx * 2 + localIdx;
-            return (
-              <div key={globalIdx} className="notice-page-segment">
-                <div className="notice-content">
-                  <div className="notice-logo-container">
-                    {/* Note: User must save the uploaded image as public/logo-rs.png */}
-                    <img src="/logo-rs.png" alt="Estado RS" className="gov-logo" />
-                    <div className="logo-divider"></div>
-                    <div className="logo-text">
-                      GOVERNO DO ESTADO<br />
-                      <strong>RIO GRANDE DO SUL</strong><br />
-                      <span style={{ fontSize: '7pt' }}>SECRETARIA DA EDUCAÇÃO</span>
+      {items.map((item, itemIdx) => (
+        <div key={itemIdx} className="notices-grid">
+          {/* Two identical copies of the same item */}
+          {[0, 1].map((copyIdx) => (
+            <div key={`${itemIdx}-${copyIdx}`} className="notice-page-segment">
+              <div className="notice-content">
+                <div className="notice-logo-container">
+                  <img src="/logo-rs.png" alt="Estado RS" className="gov-logo" />
+                  <div className="logo-divider"></div>
+                  <div className="logo-text">
+                    GOVERNO DO ESTADO<br />
+                    <strong>RIO GRANDE DO SUL</strong><br />
+                    <span style={{ fontSize: '7pt' }}>SECRETARIA DA EDUCAÇÃO</span>
+                  </div>
+                </div>
+
+                <div className="notice-id-header">
+                  COMUNICADO DRH/SDP {configs[itemIdx]?.number || '___'}/{configs[itemIdx]?.year || '2026'}
+                </div>
+
+                <div className="notice-fields">
+                  <div className="field"><strong>NOME:</strong> {item.name}</div>
+                  <div className="field"><strong>IDENTIDADE FUNCIONAL:</strong> {item.id}</div>
+                  <div className="field"><strong>ESCOLA:</strong> {configs[itemIdx]?.school || '_________________'}</div>
+                  <div className="field"><strong>MUNICÍPIO:</strong> {configs[itemIdx]?.city || '_________________'}</div>
+                </div>
+
+                <p className="intro-text">
+                  Comunicamos a Vossa Senhoria que o D.O.E. {doeDate} Página: {item.page} PUBLICOU:
+                </p>
+
+                <div className="checkboxes-table">
+                  {checkboxes.map((row, rowIdx) => (
+                    <div key={rowIdx} className="checkbox-row">
+                      {row.map((label, cellIdx) => (
+                        <div key={cellIdx} className="checkbox-cell">
+                          {label ? (
+                            <>
+                              <div className={`square-box ${isChecked(item.originalText, label) ? 'checked' : ''}`}>
+                                {isChecked(item.originalText, label) && '✕'}
+                              </div>
+                              <span className="checkbox-label">{label}</span>
+                            </>
+                          ) : null}
+                        </div>
+                      ))}
                     </div>
-                  </div>
+                  ))}
+                </div>
 
-                  <div className="notice-id-header">
-                    COMUNICADO DRH/SDP {configs[globalIdx]?.number || '___'}/{configs[globalIdx]?.year || '2026'}
-                  </div>
-
-                  <div className="notice-fields">
-                    <div className="field"><strong>NOME:</strong> {item.name}</div>
-                    <div className="field"><strong>IDENTIDADE FUNCIONAL:</strong> {item.id}</div>
-                    <div className="field"><strong>ESCOLA:</strong> {configs[globalIdx]?.school || '_________________'}</div>
-                    <div className="field"><strong>MUNICÍPIO:</strong> {configs[globalIdx]?.city || '_________________'}</div>
-                  </div>
-
-                  <p className="intro-text">
-                    Comunicamos a Vossa Senhoria que o D.O.E. {doeDate} Página: {item.page} PUBLICOU:
-                  </p>
-
-                  <div className="checkboxes-table">
-                    {checkboxes.map((row, rowIdx) => (
-                      <div key={rowIdx} className="checkbox-row">
-                        {row.map((label, cellIdx) => (
-                          <div key={cellIdx} className="checkbox-cell">
-                            <div className={`square-box ${isChecked(item.originalText, label) ? 'checked' : ''}`}>
-                              {isChecked(item.originalText, label) && '✕'}
-                            </div>
-                            <span className="checkbox-label">{label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="notice-footer">
-                    <div className="footer-line">
-                      <div className="signature-area">
-                        <span className="sign-line">__________________________</span>
-                      </div>
-                      <div className="date-area">
-                        <span>{doeDate}</span>
-                      </div>
+                <div className="notice-footer">
+                  <div className="footer-line">
+                    <div className="signature-area">
+                      <span className="sign-line">__________________________</span>
+                    </div>
+                    <div className="date-area">
+                      <span>{doeDate}</span>
                     </div>
                   </div>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       ))}
 

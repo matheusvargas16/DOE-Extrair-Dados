@@ -31,6 +31,13 @@ function formatContext(raw: string): string {
     }
     // Handle the specific hyphen/newline in user request for Cargo/Função
     result = result.replace(/Cargo\/\s*Função/gi, 'Cargo/\nFunção:');
+
+    // User requested: change disp.permuta to disposição
+    result = result.replace(/disp\.?\s*permuta/gi, 'disposição');
+
+    // User requested: remove "promove por ... da classe ..."
+    result = result.replace(/promove\s+por\s+.*?\s+da\s+classe\s+[^\s,:]+/gi, '');
+
     return result.trim();
 }
 
