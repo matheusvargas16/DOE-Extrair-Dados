@@ -14,20 +14,21 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
     pairs.push(items.slice(i, i + 2));
   }
 
+  // Removed "Expediente" as requested
   const checkboxes = [
     ["Licença Prêmio", "Quinquênio(s)"],
     ["Avanço(s)", "Adicional de pessoas com deficiência"],
-    ["Promove por ... da Classe ... / ... a/c de ...", "Concede Exp: ..."],
-    ["Dispensa Exp: ...", "Indefere Exp: ..."],
-    ["Torna sem Efeito Exp: ...", "Altera o Nível Exp: ..."],
-    ["Revoga Exp: ...", "Retifica Exp: ..."],
-    ["Apostila Exp: ...", "Designa Exp: ..."],
-    ["Enquadra Exp: ...", "Coloca Exp: ..."],
-    ["Declara estável Exp: ...", "Aposenta Exp: ..."],
-    ["Aut. afastamento Exp: ...", "Admissão Exp: ..."],
-    ["Declara empossado Exp: ...", "Regularização Func. Exp: ..."],
-    ["Exonera Exp: ...", "Disp. permuta Exp: ..."],
-    ["Ratifica o ato Exp: ...", "Torna sem efeito Exp: ..."]
+    ["Promove por ... da Classe ... / ... a/c de ...", "Concede"],
+    ["Dispensa", "Indefere"],
+    ["Torna sem Efeito", "Altera o Nível"],
+    ["Revoga", "Retifica"],
+    ["Apostila", "Designa"],
+    ["Enquadra", "Coloca"],
+    ["Declara estável", "Aposenta"],
+    ["Aut. afastamento", "Admissão"],
+    ["Declara empossado", "Regularização Funcional"],
+    ["Exonera", "Disp. permuta"],
+    ["Ratifica o ato", "Torna sem efeito"]
   ];
 
   const isChecked = (subject: string, label: string) => {
@@ -54,11 +55,14 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
             return (
               <div key={globalIdx} className="notice-page-segment">
                 <div className="notice-content">
-                  <div className="notice-logo-placeholder">
-                    <div className="logo-icon">⚜</div>
+                  <div className="notice-logo-container">
+                    {/* Note: User must save the uploaded image as public/logo-rs.png */}
+                    <img src="/logo-rs.png" alt="Estado RS" className="gov-logo" />
+                    <div className="logo-divider"></div>
                     <div className="logo-text">
-                      ESTADO DO RIO GRANDE DO SUL<br />
-                      <strong>Secretaria da Educação</strong>
+                      GOVERNO DO ESTADO<br />
+                      <strong>RIO GRANDE DO SUL</strong><br />
+                      <span style={{ fontSize: '7pt' }}>SECRETARIA DA EDUCAÇÃO</span>
                     </div>
                   </div>
 
@@ -148,7 +152,6 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
             width: 297mm;
             min-height: 210mm;
             page-break-after: always;
-            border-bottom: 1px solid transparent;
           }
 
           .notice-page-segment {
@@ -175,38 +178,46 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
             flex-direction: column;
           }
 
-          .notice-logo-placeholder {
+          .notice-logo-container {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 5mm;
+            gap: 12px;
+            margin-bottom: 8mm;
           }
           
-          .logo-icon {
-            font-size: 24pt;
+          .gov-logo {
+            height: 38pt;
+            width: auto;
+          }
+          
+          .logo-divider {
+            width: 0.5pt;
+            height: 30pt;
+            background-color: #000;
           }
           
           .logo-text {
-            font-size: 8pt;
-            letter-spacing: 0.5pt;
+            font-size: 9pt;
+            line-height: 1.1;
+            letter-spacing: 0.2pt;
           }
 
           .notice-id-header {
             text-align: left;
-            margin-bottom: 10mm;
+            margin-bottom: 8mm;
             font-size: 11pt;
             font-weight: bold;
           }
 
           .notice-fields {
-            margin-bottom: 15pt;
+            margin-bottom: 12pt;
             display: flex;
             flex-direction: column;
             gap: 2pt;
           }
 
           .field {
-            border-bottom: 0.2pt solid #eee;
+            border-bottom: 0.1pt solid #ddd;
             padding-bottom: 1pt;
             font-size: 10.5pt;
           }
@@ -216,14 +227,14 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
           }
 
           .intro-text {
-            margin-top: 10pt;
-            margin-bottom: 10pt;
+            margin-top: 5pt;
+            margin-bottom: 15pt;
           }
 
           .checkboxes-table {
             display: flex;
             flex-direction: column;
-            gap: 3pt;
+            gap: 2.5pt;
             flex: 1;
           }
 
@@ -236,12 +247,12 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
             display: flex;
             align-items: center;
             gap: 5pt;
-            font-size: 9.5pt;
+            font-size: 9.3pt;
           }
 
           .square-box {
-            width: 10pt;
-            height: 10pt;
+            width: 9.5pt;
+            height: 9.5pt;
             border: 0.8pt solid black;
             display: flex;
             align-items: center;
@@ -253,8 +264,8 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
 
           .notice-footer {
             margin-top: auto;
-            padding-top: 15pt;
-            padding-bottom: 12mm;
+            padding-top: 10pt;
+            padding-bottom: 10mm;
           }
 
           .footer-line {
