@@ -31,19 +31,32 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
     ["Ratifica o ato", "Torna sem efeito"]
   ];
 
-  const isChecked = (subject: string, label: string) => {
-    const s = subject.toUpperCase();
+  const isChecked = (fullText: string, label: string) => {
+    const text = fullText.toUpperCase();
     const l = label.toUpperCase();
 
-    if (l.includes("ADMISSÃO") && s.includes("ADMITE")) return true;
-    if (l.includes("REVOGA") && s.includes("REVOGA")) return true;
-    if (l.includes("CONCEDE") && (s.includes("CONCEDE") || s.includes("PUBLICAÇÃO"))) return true;
-    if (l.includes("RETIFICA") && s.includes("RETIFICA")) return true;
-    if (l.includes("EXONERA") && (s.includes("EXONERAR") || s.includes("EXONERADO"))) return true;
-    if (l.includes("PROMOVE") && s.includes("PROMOVE")) return true;
-    if (l.includes("APOSENTA") && s.includes("APOSENTA")) return true;
+    // Specific mappings for common verbs in DOE
+    if (l === "CONCEDE" && text.includes("CONCEDE")) return true;
+    if (l === "DISPENSA" && text.includes("DISPENSA")) return true;
+    if (l === "INDEFERE" && text.includes("INDEFERE")) return true;
+    if (l === "REVOGA" && text.includes("REVOGA")) return true;
+    if (l === "RETIFICA" && text.includes("RETIFICA")) return true;
+    if (l === "DESIGNA" && text.includes("DESIGNA")) return true;
+    if (l === "ENQUADRA" && text.includes("ENQUADRA")) return true;
+    if (l === "COLOCA" && text.includes("COLOCA")) return true;
+    if (l === "APOSENTA" && text.includes("APOSENTA")) return true;
+    if (l === "EXONERA" && (text.includes("EXONERA") || text.includes("EXONERAR"))) return true;
+    if (l === "ADMISSÃO" && (text.includes("ADMISSÃO") || text.includes("ADMITE"))) return true;
+    if (l.includes("TORNA SEM EFEITO") && text.includes("TORNA SEM EFEITO")) return true;
+    if (l.includes("LICENÇA PRÊMIO") && text.includes("LICENCA PREMIO")) return true;
+    if (l.includes("QUINQUÊNIO") && (text.includes("QUINQUENIO") || text.includes("ADICIONAL DE TEMPO DE SERVICO"))) return true;
+    if (l.includes("AVANÇO") && text.includes("AVANCO")) return true;
 
-    return s.includes(l.split(' ')[0]);
+    // Generic fallback for the first word of the label (if it's a verb)
+    const firstWord = l.split(' ')[0];
+    if (firstWord.length > 3 && text.includes(firstWord)) return true;
+
+    return false;
   };
 
   return (
@@ -86,8 +99,8 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
                       <div key={rowIdx} className="checkbox-row">
                         {row.map((label, cellIdx) => (
                           <div key={cellIdx} className="checkbox-cell">
-                            <div className={`square-box ${isChecked(item.subject, label) ? 'checked' : ''}`}>
-                              {isChecked(item.subject, label) && '✕'}
+                            <div className={`square-box ${isChecked(item.originalText, label) ? 'checked' : ''}`}>
+                              {isChecked(item.originalText, label) && '✕'}
                             </div>
                             <span className="checkbox-label">{label}</span>
                           </div>
