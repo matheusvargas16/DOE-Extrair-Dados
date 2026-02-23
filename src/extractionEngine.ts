@@ -90,9 +90,18 @@ export class ExtractionEngine {
                 const nameMatch = block.match(/Nome:\s*([^:]+?)(?=\s+(?:Processo:|Protocolo:|Assunto:|Cargo|Lotação|ID|Identific|$))/i);
                 const name = nameMatch ? nameMatch[1].trim() : "Não Identificado";
 
-                // 3. ID (Protocolo or Processo or Vinculo)
-                const idMatch = block.match(/(?:Processo:|Protocolo:|Identificação\s+Funcional\/Vínculo:)\s*([\d./\-]+)/i);
-                const id = idMatch ? idMatch[1].trim() : "S/N";
+                // 3. IDs (Priority: ID Funcional > Protocolo > Processo)
+                const funcIdMatch = block.match(/Identificação\s+Funcional\/Vínculo:\s*([\d./\-]+)/i);
+                const protocolMatch = block.match(/Protocolo:\s*([\d./\-]+)/i);
+                const processoMatch = block.match(/Processo:\s*([\d./\-]+)/i);
+
+                // For the "ID FUNCIONAL" field in results
+                const id = funcIdMatch
+                    ? funcIdMatch[1].trim()
+                    : (protocolMatch ? protocolMatch[1].trim() : (processoMatch ? processoMatch[1].trim() : "S/N"));
+
+                // Store processo for future use
+                const processo = processoMatch ? processoMatch[1].trim() : undefined;
 
                 // 4. Lotação
                 const localLotacaoMatch = block.match(/Lota(?:ção|cao):\s*([^:]+?)(?=\s{2,}|Assunto:|Protocolo:|Processo:|Nome:|$)/i);
@@ -117,6 +126,7 @@ export class ExtractionEngine {
                     subject,
                     name,
                     id,
+                    processo, // Save it here
                     lotacao,
                     context: cleanText.slice(0, 150),
                     originalText: formatContext(cleanText),

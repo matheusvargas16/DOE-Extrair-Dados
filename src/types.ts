@@ -3,6 +3,7 @@ export interface ExtractedData {
     subject: string;
     name: string;
     id: string;
+    processo?: string; // New field to store Processo separately
     lotacao: string;
     context: string;
     originalText: string;
@@ -26,11 +27,22 @@ export interface NoticeConfig {
 
 export const DEFAULT_TRIGGERS = [
     "SEDUC -- 39 Coordenadoria Regional de Educação",
+    "SEDUC - 39 Coordenadoria Regional de Educação",
+    "SEDUC -- 39 CRE",
+    "SEDUC - 39 CRE",
     "Secretaria da Educação -- 39 Coordenadoria Regional de Educação",
+    "Secretaria da Educação - 39 Coordenadoria Regional de Educação",
     "39ª Coordenadoria Regional de Educação",
     "39a Coordenadoria Regional de Educação",
+    "39 Coordenadoria Regional de Educação",
     "39ª CRE",
-    "39 CRE"
+    "39a CRE",
+    "39 CRE",
+    "39ª C.R.E.",
+    "39a C.R.E.",
+    "39 C.R.E.",
+    "Coordenadoria de Educação - 39",
+    "Coordenadoria de Educação -- 39"
 ];
 
 export const SCHOOLS_BY_CITY: Record<string, string[]> = {
