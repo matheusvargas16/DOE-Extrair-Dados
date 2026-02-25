@@ -24,13 +24,18 @@ const FIELD_LABELS = [
  * Formats the context with clean line breaks for readability.
  */
 function formatContext(raw: string): string {
-    let result = raw;
+    let result = raw.replace(/\s+/g, ' '); // Normalize all spaces first
+
+    // Add newlines before labels
     for (const label of FIELD_LABELS) {
         const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        result = result.replace(new RegExp(`\\s*(${escaped})`, 'gi'), '\n$1');
+        // Use double newline for major fields to create visual paragraphs
+        const separator = (label === 'Assunto:' || label === 'Nome:' || label === 'Protocolo:' || label === 'Processo:') ? '\n\n' : '\n';
+        result = result.replace(new RegExp(`\\s*(${escaped})`, 'gi'), `${separator}$1`);
     }
+
     // Handle the specific hyphen/newline in user request for Cargo/Função
-    result = result.replace(/Cargo\/\s*Função/gi, 'Cargo/\nFunção:');
+    result = result.replace(/Cargo\/\s*Função/gi, '\nCargo/\nFunção:');
 
     // User requested: change disp.permuta to disposição
     result = result.replace(/disp\.?\s*permuta/gi, 'disposição');

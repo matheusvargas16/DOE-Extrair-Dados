@@ -356,7 +356,6 @@ function App() {
                       </th>
                       <th style={{ width: '60px' }}>PÁG.</th>
                       <th>SERVIDOR / INTERESSADO</th>
-                      <th>LOTAÇÃO</th>
                       <th>ASSUNTO</th>
                       <th style={{ width: '40px' }}></th>
                     </tr>
@@ -376,8 +375,8 @@ function App() {
                           <td>
                             <div style={{ fontWeight: 700 }}>{item.name}</div>
                             <div className="id-chip" style={{ marginTop: '0.25rem' }}>{item.id}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.4rem', fontWeight: 500 }}>{item.lotacao}</div>
                           </td>
-                          <td><span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{item.lotacao}</span></td>
                           <td>
                             <div className={`subject-tag ${item.subject.toUpperCase().includes('ADM') ? 'tag-yellow' : ''}`}>
                               {item.subject}
@@ -394,25 +393,30 @@ function App() {
                         </tr>
                         {expandedRow === idx && (
                           <tr className="expanded-content-row">
-                            <td colSpan={6}>
+                            <td colSpan={5}>
                               <div className="original-context-box">
                                 <div className="context-header">
-                                  <strong>CONTEXTO ORIGINAL EXTRAÍDO (OCR)</strong>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></div>
+                                    <strong>RECORTE ORIGINAL DO DIÁRIO OFICIAL</strong>
+                                  </div>
                                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                                     <button
                                       className="btn-outline"
-                                      style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem' }}
+                                      style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem', height: 'auto' }}
                                       onClick={() => handleOpenLocalPDF(item.page)}
                                     >
-                                      <ExternalLink size={14} /> Abrir na Página {item.page} (Local)
+                                      <ExternalLink size={14} /> Abrir na Página {item.page}
                                     </button>
-                                    <button className="btn-copy" onClick={() => handleCopy(item.originalText, idx)}>
+                                    <button className="btn-copy" style={{ height: 'auto' }} onClick={() => handleCopy(item.originalText, idx)}>
                                       {copiedId === idx ? <Check size={14} /> : <Copy size={14} />}
-                                      {copiedId === idx ? 'Copiado!' : 'Copiar'}
+                                      {copiedId === idx ? 'Copiado!' : 'Copiar Texto'}
                                     </button>
                                   </div>
                                 </div>
-                                <pre className="context-text">{item.originalText}</pre>
+                                <div className="context-content-wrapper">
+                                  <pre className="context-text">{item.originalText}</pre>
+                                </div>
                               </div>
                             </td>
                           </tr>
