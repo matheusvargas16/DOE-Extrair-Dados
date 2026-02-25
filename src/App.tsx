@@ -114,11 +114,12 @@ function App() {
     }, 500);
   };
 
-  const handleOpenLocalPDF = (page: number) => {
+  const handleOpenLocalPDF = (page: number | string) => {
     if (!currentFile) return;
+    const pageNum = typeof page === 'string' ? parseInt(page) : page;
     const fileURL = URL.createObjectURL(currentFile);
     // Open the local blob URL with the page fragment
-    window.open(`${fileURL}#page=${page}`, '_blank');
+    window.open(`${fileURL}#page=${pageNum}`, '_blank');
   };
 
   const handleDebugRawText = () => {

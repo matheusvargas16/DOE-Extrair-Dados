@@ -1,5 +1,5 @@
 export interface ExtractedData {
-    page: number;
+    page: string;
     subject: string;
     name: string;
     id: string;

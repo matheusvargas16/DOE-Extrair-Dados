@@ -65,9 +65,14 @@ export class ExtractionEngine {
 
         let lastHeadingCRE = ""; // Persistence for section-level CRE headers
 
+        let currentPos = 0;
         for (const block of rawBlocks) {
-            if (block.trim().length < 20) continue;
+            if (block.trim().length < 20) {
+                currentPos += block.length;
+                continue;
+            }
 
+            const blockStart = fullText.indexOf(block, currentPos);
             const normalizedBlock = normalizeForMatch(block);
 
             // Check if this specific block mentions the target CRE
@@ -115,31 +120,35 @@ export class ExtractionEngine {
                 const lotacao = localLotacaoMatch ? localLotacaoMatch[1].trim() : (lastHeadingCRE || "39ª CRE");
 
                 // 5. Page Tracking
-                const pageMarkersFound = block.match(/__PAGE_START_(\d+)__/g);
-                let pageNum = 1;
-                if (pageMarkersFound) {
-                    pageNum = parseInt(pageMarkersFound[0].match(/\d+/)![0]);
-                } else {
-                    // Look back in previous text for page marker
-                    const prevText = fullText.slice(0, fullText.indexOf(block));
-                    const lastPageMatch = [...prevText.matchAll(/__PAGE_START_(\d+)__/g)].pop();
-                    if (lastPageMatch) pageNum = parseInt(lastPageMatch[1]);
-                }
+                // Find what page it started on (last marker before the block)
+                const prevText = fullText.slice(0, blockStart);
+                const lastPageMatchBefore = [...prevText.matchAll(/__PAGE_START_(\d+)__/g)].pop();
+                const startPage = lastPageMatchBefore ? parseInt(lastPageMatchBefore[1]) : 1;
+
+                // Find all markers inside the block (meaning it crossed page boundaries)
+                const pageMarkersInside = [...block.matchAll(/__PAGE_START_(\d+)__/g)];
+                const pagesInside = pageMarkersInside.map(m => parseInt(m[1]));
+
+                const allPagesForBlock = [startPage, ...pagesInside];
+                const uniquePages = [...new Set(allPagesForBlock)].sort((a, b) => a - b);
+
+                let pageDisplay = uniquePages.join(' e ');
 
                 const cleanText = block.replace(/__PAGE_START_\d+__/g, '\n[QUEBRA DE PÁGINA]\n').trim();
 
                 results.push({
-                    page: pageNum,
+                    page: pageDisplay,
                     subject,
                     name,
                     id,
-                    processo, // Save it here
+                    processo,
                     lotacao,
                     context: cleanText.slice(0, 150),
                     originalText: formatContext(cleanText),
                     selected: false,
                 });
             }
+            currentPos = blockStart + block.length;
         }
 
         return this.deduplicate(results);
