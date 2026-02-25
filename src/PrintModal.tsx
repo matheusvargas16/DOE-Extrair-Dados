@@ -4,132 +4,170 @@ import type { ExtractedData, NoticeConfig } from './types';
 import { SCHOOLS_BY_CITY } from './types';
 
 interface PrintModalProps {
-    selectedItems: ExtractedData[];
-    doeDate: string;
-    onClose: () => void;
-    onGenerate: (configs: Record<number, NoticeConfig>) => void;
+  selectedItems: ExtractedData[];
+  doeDate: string;
+  onClose: () => void;
+  onGenerate: (configs: Record<number, NoticeConfig>) => void;
 }
 
 export const PrintModal: React.FC<PrintModalProps> = ({ selectedItems, doeDate, onClose, onGenerate }) => {
-    const [noticeNumber, setNoticeNumber] = useState('___');
-    const [year] = useState(new Date().getFullYear().toString());
-    const [configs, setConfigs] = useState<Record<number, NoticeConfig>>({});
+  const [noticeNumber, setNoticeNumber] = useState(() => localStorage.getItem('doe_last_notice_number') || '___');
+  const [year] = useState(new Date().getFullYear().toString());
+  const [configs, setConfigs] = useState<Record<number, NoticeConfig>>({});
 
-    const cities = Object.keys(SCHOOLS_BY_CITY).sort();
+  const cities = Object.keys(SCHOOLS_BY_CITY).sort();
 
-    useEffect(() => {
-        // Initialize configs for selected items
-        const initialConfigs: Record<number, NoticeConfig> = {};
-        selectedItems.forEach((_, index) => {
-            initialConfigs[index] = {
-                number: noticeNumber,
-                year: year,
-                city: '',
-                school: '',
-                date: doeDate
-            };
-        });
-        setConfigs(initialConfigs);
-    }, [selectedItems, noticeNumber, year, doeDate]);
+  useEffect(() => {
+    const baseNumber = parseInt(noticeNumber);
+    const isNumeric = !isNaN(baseNumber);
 
-    const handleUpdateConfig = (index: number, field: keyof NoticeConfig, value: string) => {
-        setConfigs(prev => ({
-            ...prev,
-            [index]: {
-                ...prev[index],
-                [field]: value,
-                // Reset school if city changes
-                ...(field === 'city' ? { school: '' } : {})
-            }
-        }));
-    };
+    setConfigs(prev => {
+      const newConfigs: Record<number, NoticeConfig> = {};
+      selectedItems.forEach((_, index) => {
+        const currentNum = isNumeric ? (baseNumber + index).toString() : noticeNumber;
+        newConfigs[index] = {
+          city: prev[index]?.city || '',
+          school: prev[index]?.school || '',
+          date: doeDate,
+          year: year,
+          number: currentNum
+        };
+      });
+      return newConfigs;
+    });
+  }, [selectedItems, noticeNumber, year, doeDate]);
 
-    return (
-        <div className="modal-overlay">
-            <div className="modal-content">
-                <div className="modal-header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div className="icon-badge"><Printer size={20} /></div>
-                        <div>
-                            <h3>Configurar Impressão</h3>
-                            <p className="subtitle">Revise e preencha os dados de lotação para os {selectedItems.length} registros selecionados.</p>
-                        </div>
-                    </div>
-                    <button className="close-btn" onClick={onClose}><X size={20} /></button>
-                </div>
+  const handleUpdateConfig = (index: number, field: keyof NoticeConfig, value: string) => {
+    if (field === 'number') {
+      // If they manually edit one number, we don't necessarily want to re-sequence everything
+      // or maybe we do? For now, just update the single one.
+      setConfigs(prev => ({
+        ...prev,
+        [index]: { ...prev[index], [field]: value }
+      }));
+      return;
+    }
+    setConfigs(prev => ({
+      ...prev,
+      [index]: {
+        ...prev[index],
+        [field]: value,
+        // Reset school if city changes
+        ...(field === 'city' ? { school: '' } : {})
+      }
+    }));
+  };
 
-                <div className="modal-body">
-                    <div className="global-config">
-                        <div className="control-group">
-                            <label>Nº do Comunicado</label>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <input
-                                    type="text"
-                                    value={noticeNumber}
-                                    onChange={(e) => setNoticeNumber(e.target.value)}
-                                    style={{ width: '80px', textAlign: 'center' }}
-                                />
-                                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>/ {year}</span>
-                            </div>
-                        </div>
-                    </div>
+  const handleGenerate = () => {
+    // Save the LAST number + 1 to localStorage for next time
+    const lastIndex = selectedItems.length - 1;
+    const lastNum = parseInt(configs[lastIndex]?.number);
+    if (!isNaN(lastNum)) {
+      localStorage.setItem('doe_last_notice_number', (lastNum + 1).toString());
+    }
+    onGenerate(configs);
+  };
 
-                    <div className="items-list">
-                        {selectedItems.map((item, idx) => (
-                            <div key={idx} className="item-config-card">
-                                <div className="item-info">
-                                    <div className="item-badge">#{idx + 1}</div>
-                                    <div style={{ flex: 1 }}>
-                                        <div className="item-name">{item.name}</div>
-                                        <div className="item-sub">{item.subject}</div>
-                                        <div className="item-id-badge"><FileText size={12} /> {item.id}</div>
-                                    </div>
-                                </div>
 
-                                <div className="item-selectors">
-                                    <div className="selector-group">
-                                        <label><MapPin size={12} /> MUNICÍPIO</label>
-                                        <select
-                                            value={configs[idx]?.city || ''}
-                                            onChange={(e) => handleUpdateConfig(idx, 'city', e.target.value)}
-                                        >
-                                            <option value="">Selecione...</option>
-                                            {cities.map(city => <option key={city} value={city}>{city}</option>)}
-                                        </select>
-                                    </div>
-
-                                    <div className="selector-group">
-                                        <label><School size={12} /> ESCOLA</label>
-                                        <select
-                                            value={configs[idx]?.school || ''}
-                                            onChange={(e) => handleUpdateConfig(idx, 'school', e.target.value)}
-                                            disabled={!configs[idx]?.city}
-                                        >
-                                            <option value="">{configs[idx]?.city ? 'Selecione...' : '-'}</option>
-                                            {configs[idx]?.city && SCHOOLS_BY_CITY[configs[idx].city].map(school => (
-                                                <option key={school} value={school}>{school}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="modal-footer">
-                    <button className="btn-outline" onClick={onClose}>Cancelar</button>
-                    <button
-                        className="btn-primary"
-                        onClick={() => onGenerate(configs)}
-                        disabled={selectedItems.some((_, idx) => !configs[idx]?.city || !configs[idx]?.school)}
-                    >
-                        <Printer size={18} /> Gerar Comunicados
-                    </button>
-                </div>
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div className="icon-badge"><Printer size={20} /></div>
+            <div>
+              <h3>Configurar Impressão</h3>
+              <p className="subtitle">Revise e preencha os dados de lotação para os {selectedItems.length} registros selecionados.</p>
             </div>
+          </div>
+          <button className="close-btn" onClick={onClose}><X size={20} /></button>
+        </div>
 
-            <style>{`
+        <div className="modal-body">
+          <div className="global-config">
+            <div className="control-group">
+              <label>Nº Inicial do Comunicado</label>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="text"
+                  value={noticeNumber}
+                  onChange={(e) => setNoticeNumber(e.target.value)}
+                  style={{ width: '80px', textAlign: 'center' }}
+                />
+                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>/ {year}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="items-list">
+            {selectedItems.map((item, idx) => (
+              <div key={idx} className="item-config-card">
+                <div className="item-info">
+                  <div className="item-badge">#{idx + 1}</div>
+                  <div style={{ flex: 1 }}>
+                    <div className="item-name">{item.name}</div>
+                    <div className="item-sub">{item.subject}</div>
+                    <div className="item-id-badge"><FileText size={12} /> {item.id}</div>
+                  </div>
+                </div>
+
+                <div className="item-selectors">
+                  <div className="selector-group">
+                    <label>Nº COMUNICADO</label>
+                    <input
+                      type="text"
+                      className="item-number-input"
+                      value={configs[idx]?.number || ''}
+                      onChange={(e) => handleUpdateConfig(idx, 'number', e.target.value)}
+                    />
+                  </div>
+
+                  <div className="selector-group">
+                    <label><MapPin size={12} /> MUNICÍPIO</label>
+                    <select
+                      value={configs[idx]?.city || ''}
+                      onChange={(e) => handleUpdateConfig(idx, 'city', e.target.value)}
+                    >
+                      <option value="">Selecione...</option>
+                      {cities.map(city => <option key={city} value={city}>{city}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="selector-group">
+                    <label><School size={12} /> ESCOLA</label>
+                    <select
+                      value={configs[idx]?.school || ''}
+                      onChange={(e) => handleUpdateConfig(idx, 'school', e.target.value)}
+                      disabled={!configs[idx]?.city}
+                    >
+                      <option value="">{configs[idx]?.city ? 'Selecione...' : '-'}</option>
+                      {configs[idx]?.city && SCHOOLS_BY_CITY[configs[idx].city].map(school => (
+                        <option key={school} value={school}>{school}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="modal-footer">
+          <button className="btn-outline" onClick={onClose}>Cancelar</button>
+          <button
+            className="btn-primary"
+            onClick={handleGenerate}
+            disabled={selectedItems.some((_, idx) => !configs[idx]?.city || !configs[idx]?.school)}
+          >
+            <Printer size={18} /> Gerar Comunicados
+          </button>
+        </div>
+
+      </div>
+
+      <style>{`
         .modal-overlay {
           position: fixed;
           top: 0;
@@ -264,8 +302,18 @@ export const PrintModal: React.FC<PrintModalProps> = ({ selectedItems, doeDate, 
 
         .item-selectors {
           display: grid;
-          grid-template-columns: 1fr 1.5fr;
+          grid-template-columns: 0.7fr 1fr 1.5fr;
           gap: 1rem;
+        }
+
+        .item-number-input {
+          padding: 0.5rem;
+          border-radius: 0.5rem;
+          border: 1px solid var(--card-border);
+          font-size: 0.85rem;
+          background: white;
+          outline-color: var(--primary);
+          width: 100%;
         }
 
         .selector-group {
@@ -284,6 +332,8 @@ export const PrintModal: React.FC<PrintModalProps> = ({ selectedItems, doeDate, 
         }
 
         select {
+
+
           padding: 0.5rem;
           border-radius: 0.5rem;
           border: 1px solid var(--card-border);
@@ -311,6 +361,6 @@ export const PrintModal: React.FC<PrintModalProps> = ({ selectedItems, doeDate, 
           }
         }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 };
