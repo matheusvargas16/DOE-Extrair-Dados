@@ -11,7 +11,7 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
   // Removed "Expediente" as requested
   const checkboxes = [
     ["Licença Prêmio", "Quinquênio(s)"],
-    ["Avanço(s)", "Adicional de pessoas com deficiência"],
+    ["Avanço(s)", ""],
     ["Concede", "Dispensa"],
     ["Indefere", "Torna sem Efeito"],
     ["Altera o Nível", "Revoga"],
@@ -19,40 +19,66 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
     ["Designa", "Enquadra"],
     ["Coloca", "Declara estável"],
     ["Aposenta", "Aut. afastamento"],
-    ["Admissão", "Declara empossado"],
+    ["", "Declara empossado"],
     ["Regularização Funcional", "Exonera"],
-    ["Disposição", "Ratifica o ato"],
+    ["Disposição", ""],
     ["Torna sem efeito", ""]
   ];
 
+  const getWinnerLabel = (fullText: string) => {
+    if (!fullText) return null;
+    const text = fullText.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    const candidates = [
+      { label: "CONCEDE", keywords: ["CONCEDE"] },
+      { label: "DISPENSA", keywords: ["DISPENSA"] },
+      { label: "RETIFICA", keywords: ["RETIFICA"] },
+      { label: "TORNA SEM EFEITO", keywords: ["TORNA SEM EFEITO"] },
+      { label: "LICENÇA PRÊMIO", keywords: ["LICENCA PREMIO"] },
+      { label: "QUINQUÊNIO(S)", keywords: ["QUINQUENIO", "ADICIONAL DE TEMPO DE SERVICO"] },
+      { label: "AVANÇO(S)", keywords: ["AVANCO"] },
+      { label: "INDEFERE", keywords: ["INDEFERE"] },
+      { label: "ALTERA O NÍVEL", keywords: ["ALTERA O NIVEL"] },
+      { label: "REVOGA", keywords: ["REVOGA"] },
+      { label: "APOSTILA", keywords: ["APOSTILA"] },
+      { label: "DESIGNA", keywords: ["DESIGNA"] },
+      { label: "ENQUADRA", keywords: ["ENQUADRA"] },
+      { label: "COLOCA", keywords: ["COLOCA"] },
+      { label: "DECLARA ESTÁVEL", keywords: ["DECLARA ESTAVEL"] },
+      { label: "APOSENTA", keywords: ["APOSENTA"] },
+      { label: "AUT. AFASTAMENTO", keywords: ["AUT. AFASTAMENTO", "AFASTAMENTO"] },
+      { label: "DECLARA EMPOSSADO", keywords: ["DECLARA EMPOSSADO"] },
+      { label: "REGULARIZAÇÃO FUNCIONAL", keywords: ["REGULARIZACAO FUNCIONAL"] },
+      { label: "EXONERA", keywords: ["EXONERA", "EXONERAR"] },
+      { label: "DISPOSIÇÃO", keywords: ["DISPOSICAO", "PERMUTA", "DISP.PERMUTA"] },
+    ];
+
+    let winner = null;
+    let minIdx = Infinity;
+
+    for (const c of candidates) {
+      for (const kw of c.keywords) {
+        const idx = text.indexOf(kw);
+        // We want the match that appears first in the "action" part of the text
+        if (idx !== -1 && idx < minIdx) {
+          minIdx = idx;
+          winner = c.label;
+        }
+      }
+    }
+    return winner;
+  };
+
   const isChecked = (fullText: string, label: string) => {
     if (!label) return false;
-    const text = fullText.toUpperCase();
-    const l = label.toUpperCase();
+    const winner = getWinnerLabel(fullText);
+    if (!winner) return false;
 
-    // Specific mappings for common verbs in DOE
-    if (l === "CONCEDE" && text.includes("CONCEDE")) return true;
-    if (l === "DISPENSA" && text.includes("DISPENSA")) return true;
-    if (l === "INDEFERE" && text.includes("INDEFERE")) return true;
-    if (l === "REVOGA" && text.includes("REVOGA")) return true;
-    if (l === "RETIFICA" && text.includes("RETIFICA")) return true;
-    if (l === "DESIGNA" && text.includes("DESIGNA")) return true;
-    if (l === "ENQUADRA" && text.includes("ENQUADRA")) return true;
-    if (l === "COLOCA" && text.includes("COLOCA")) return true;
-    if (l === "APOSENTA" && text.includes("APOSENTA")) return true;
-    if (l === "EXONERA" && (text.includes("EXONERA") || text.includes("EXONERAR"))) return true;
-    if (l === "ADMISSÃO" && (text.includes("ADMISSÃO") || text.includes("ADMITE"))) return true;
-    if (l === "DISPOSIÇÃO" && (text.includes("DISPOSICAO") || text.includes("PERMUTA") || text.includes("DISP.PERMUTA"))) return true;
-    if (l.includes("TORNA SEM EFEITO") && text.includes("TORNA SEM EFEITO")) return true;
-    if (l.includes("LICENÇA PRÊMIO") && text.includes("LICENCA PREMIO")) return true;
-    if (l.includes("QUINQUÊNIO") && (text.includes("QUINQUENIO") || text.includes("ADICIONAL DE TEMPO DE SERVICO"))) return true;
-    if (l.includes("AVANÇO") && text.includes("AVANCO")) return true;
+    // Normalizing both for comparison
+    const normLabel = label.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(' ')[0];
+    const normWinner = winner.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(' ')[0];
 
-    // Generic fallback for the first word of the label (if it's a verb)
-    const firstWord = l.split(' ')[0];
-    if (firstWord.length > 3 && text.includes(firstWord)) return true;
-
-    return false;
+    return normLabel === normWinner;
   };
 
   return (
