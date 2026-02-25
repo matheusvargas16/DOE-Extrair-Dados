@@ -11,18 +11,16 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
   // Removed "Expediente" as requested
   const checkboxes = [
     ["Licença Prêmio", "Quinquênio(s)"],
-    ["Avanço(s)", ""],
-    ["Concede", "Dispensa"],
-    ["Indefere", "Torna sem Efeito"],
-    ["Altera o Nível", "Revoga"],
-    ["Retifica", "Apostila"],
-    ["Designa", "Enquadra"],
-    ["Coloca", "Declara estável"],
-    ["Aposenta", "Aut. afastamento"],
-    ["", "Declara empossado"],
+    ["Avanço(s)", "Concede"],
+    ["Dispensa", "Indefere"],
+    ["Torna sem Efeito", "Altera o Nível"],
+    ["Revoga", "Retifica"],
+    ["Apostila", "Designa"],
+    ["Enquadra", "Coloca"],
+    ["Declara estável", "Aposenta"],
+    ["Aut. afastamento", "Declara empossado"],
     ["Regularização Funcional", "Exonera"],
-    ["Disposição", ""],
-    ["Torna sem efeito", ""]
+    ["Disposição", ""]
   ];
 
   const getWinnerLabel = (fullText: string) => {
