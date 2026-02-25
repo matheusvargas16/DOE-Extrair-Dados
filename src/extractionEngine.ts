@@ -101,7 +101,8 @@ export class ExtractionEngine {
 
                 // 1. Subject (Assunto)
                 const subjectMatch = block.match(/Assunto:\s*([^:]+?)(?=\s+(?:Processo:|Protocolo:|Nome:|Cargo|Lotação|ID|$))/i);
-                const subject = subjectMatch ? subjectMatch[1].trim() : "Diversos";
+                const rawSubject = subjectMatch ? subjectMatch[1].trim() : "Diversos";
+                const subject = this.cleanField(rawSubject);
 
                 // 2. Name (Nome)
                 const nameMatch = block.match(/Nome:\s*([^:]+?)(?=\s+(?:Processo:|Protocolo:|Assunto:|Cargo|Lotação|ID|Identific|$))/i);
@@ -157,6 +158,16 @@ export class ExtractionEngine {
         }
 
         return this.deduplicate(results);
+    }
+
+    static cleanField(text: string): string {
+        return text
+            .replace(/__PAGE_START_\d+__/g, '')
+            .replace(/DIÁRIO\s+OFICIAL\s+Nº\s*\d+/gi, '')
+            // Remove header dates/cities: PORTO ALEGRE, TERÇA-FEIRA, 24 DE FEVEREIRO DE 2026 133
+            .replace(/[A-Z]{3,},?\s+[A-Z\-]{3,},\s+\d{1,2}\s+DE\s+[A-Z]{3,}\s+DE\s+\d{4}(\s+\d+)?/gi, '')
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 
     static deduplicate(data: ExtractedData[]): ExtractedData[] {

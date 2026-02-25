@@ -354,7 +354,7 @@ function App() {
                           checked={results.length > 0 && results.every(r => r.selected)}
                         />
                       </th>
-                      <th style={{ width: '60px' }}>PÁG.</th>
+                      <th style={{ width: '80px' }}>PÁG.</th>
                       <th>SERVIDOR / INTERESSADO</th>
                       <th>ASSUNTO</th>
                       <th style={{ width: '40px' }}></th>

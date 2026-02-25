@@ -304,6 +304,7 @@ button:disabled {
   font-weight: 700;
   font-size: 0.8rem;
   color: #64748b;
+  white-space: nowrap;
 }
 
 .id-chip {
