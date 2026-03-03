@@ -83,6 +83,7 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
     <div className="print-only">
       {items.map((item, itemIdx) => {
         const isDisposicao = getWinnerLabel(item.originalText) === 'DISPOSIÇÃO';
+        const showSmecCopy = isDisposicao || configs[itemIdx]?.generateSmec;
         const city = configs[itemIdx]?.city || '_________________';
         const smecLabel = `SMEC de ${city}`;
 
@@ -90,7 +91,7 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
           <div key={itemIdx} className="notices-grid">
             {/* Copy 0 = Escola, Copy 1 = SMEC (when Disposição) or identical copy */}
             {[0, 1].map((copyIdx) => {
-              const schoolField = (isDisposicao && copyIdx === 1)
+              const schoolField = (showSmecCopy && copyIdx === 1)
                 ? smecLabel
                 : (configs[itemIdx]?.school || '_________________');
 

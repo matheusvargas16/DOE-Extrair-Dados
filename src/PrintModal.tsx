@@ -30,7 +30,8 @@ export const PrintModal: React.FC<PrintModalProps> = ({ selectedItems, doeDate, 
           school: prev[index]?.school || '',
           date: doeDate,
           year: year,
-          number: currentNum
+          number: currentNum,
+          generateSmec: prev[index]?.generateSmec !== undefined ? prev[index].generateSmec : true
         };
       });
       return newConfigs;
@@ -98,6 +99,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({ selectedItems, doeDate, 
                 <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>/ {year}</span>
               </div>
             </div>
+
           </div>
 
           <div className="items-list">
@@ -146,6 +148,23 @@ export const PrintModal: React.FC<PrintModalProps> = ({ selectedItems, doeDate, 
                         <option key={school} value={school}>{school}</option>
                       ))}
                     </select>
+                  </div>
+
+                  <div className="selector-group" style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <label style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>SMEC</label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', userSelect: 'none' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!configs[idx]?.generateSmec}
+                        onChange={(e) => {
+                          setConfigs(prev => ({
+                            ...prev,
+                            [idx]: { ...prev[idx], generateSmec: e.target.checked }
+                          }));
+                        }}
+                        style={{ width: '16px', height: '16px', accentColor: 'var(--primary)', cursor: 'pointer' }}
+                      />
+                    </label>
                   </div>
                 </div>
 
@@ -302,7 +321,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({ selectedItems, doeDate, 
 
         .item-selectors {
           display: grid;
-          grid-template-columns: 0.7fr 1fr 1.5fr;
+          grid-template-columns: 0.7fr 1fr 1.5fr auto;
           gap: 1rem;
         }
 

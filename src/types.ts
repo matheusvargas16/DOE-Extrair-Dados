@@ -23,6 +23,7 @@ export interface NoticeConfig {
     city: string;
     school: string;
     date: string;
+    generateSmec?: boolean;
 }
 
 export const DEFAULT_TRIGGERS = [
@@ -89,5 +90,6 @@ export const SCHOOLS_BY_CITY: Record<string, string[]> = {
     ],
     "Tio Hugo": ["EEEM de Tio Hugo"],
     "Três Palmeiras": ["EEEM José Antônio Ferronato"],
-    "Trindade do Sul": ["EEEF Antônio Mânica", "EEEM Zenir Ghizzi da Silva"]
+    "Trindade do Sul": ["EEEF Antônio Mânica", "EEEM Zenir Ghizzi da Silva"],
+    "Victor Graeff": ["JOMAC"]
 };
