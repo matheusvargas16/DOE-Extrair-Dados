@@ -94,8 +94,26 @@ export class ExtractionEngine {
                 }
             }
 
+            // --- SAFEGUARDS against false positives ---
+            // 1. Skip blocks that are too long (individual records are typically < 3000 chars)
+            if (block.length > 3000) {
+                currentPos = blockStart + block.length;
+                continue;
+            }
+
+            // 2. Count how many pages this block spans. If it spans 3+, it's likely not a single record.
+            const pageMarkersCheck = [...block.matchAll(/__PAGE_START_(\d+)__/g)];
+            if (pageMarkersCheck.length >= 3) {
+                currentPos = blockStart + block.length;
+                continue;
+            }
+
+            // 3. Must contain a "Nome:" field to be a valid person record
+            const hasNomeField = /Nome:/i.test(block);
+
             // A record is valid if the block itself has the trigger OR it's under an active CRE section
-            if (blockMentionsTrigger || (lastHeadingCRE && block.includes('Nome:'))) {
+            // AND it must have a Nome field to be considered a personal record
+            if ((blockMentionsTrigger || lastHeadingCRE) && hasNomeField) {
 
                 // --- DYNAMIC FIELD EXTRACTION ---
 
@@ -125,22 +143,50 @@ export class ExtractionEngine {
                 const localLotacaoMatch = block.match(/Lota(?:ção|cao):\s*([^:]+?)(?=\s{2,}|Assunto:|Protocolo:|Processo:|Nome:|$)/i);
                 const lotacao = localLotacaoMatch ? localLotacaoMatch[1].trim() : (lastHeadingCRE || "39ª CRE");
 
-                // 5. Page Tracking
-                // Find what page it started on (last marker before the block)
-                const prevText = fullText.slice(0, blockStart);
-                const lastPageMatchBefore = [...prevText.matchAll(/__PAGE_START_(\d+)__/g)].pop();
-                const startPage = lastPageMatchBefore ? parseInt(lastPageMatchBefore[1]) : 1;
+                // 5. Page Tracking - find the page where the actual record content (Nome:) is
+                const nomePos = block.search(/Nome:/i);
+                const textBeforeNome = block.slice(0, nomePos >= 0 ? nomePos : block.length);
+                const pageMarkersBeforeNome = [...textBeforeNome.matchAll(/__PAGE_START_(\d+)__/g)];
 
-                // Find all markers inside the block (meaning it crossed page boundaries)
-                const pageMarkersInside = [...block.matchAll(/__PAGE_START_(\d+)__/g)];
-                const pagesInside = pageMarkersInside.map(m => parseInt(m[1]));
+                // The page of the record is the last page marker before Nome:
+                let recordPage: number;
+                if (pageMarkersBeforeNome.length > 0) {
+                    recordPage = parseInt(pageMarkersBeforeNome[pageMarkersBeforeNome.length - 1][1]);
+                } else {
+                    // Nome: is before any page marker in this block, so it's on the page that started before the block
+                    const prevText = fullText.slice(0, blockStart);
+                    const lastPageMatchBefore = [...prevText.matchAll(/__PAGE_START_(\d+)__/g)].pop();
+                    recordPage = lastPageMatchBefore ? parseInt(lastPageMatchBefore[1]) : 1;
+                }
 
-                const allPagesForBlock = [startPage, ...pagesInside];
-                const uniquePages = [...new Set(allPagesForBlock)].sort((a, b) => a - b);
+                // Also check if the record spans into the next page (text after Nome continues past a page marker)
+                const textAfterNome = nomePos >= 0 ? block.slice(nomePos) : block;
+                // Only look ~1500 chars after Nome for the relevant record content
+                const relevantAfterNome = textAfterNome.slice(0, 1500);
+                const pageMarkersAfterNome = [...relevantAfterNome.matchAll(/__PAGE_START_(\d+)__/g)];
+                const pagesAfterNome = pageMarkersAfterNome.map(m => parseInt(m[1]));
 
-                let pageDisplay = uniquePages.join(' e ');
+                const allRecordPages = [recordPage, ...pagesAfterNome];
+                const uniquePages = [...new Set(allRecordPages)].sort((a, b) => a - b);
+                const pageDisplay = uniquePages.join(' e ');
 
-                const cleanText = block.replace(/__PAGE_START_\d+__/g, '\n[QUEBRA DE PÁGINA]\n').trim();
+                // 6. Trim originalText to only the relevant portion around the record
+                // Find the start position: look for the nearest record-starting keyword before Nome
+                let trimStart = 0;
+                if (nomePos >= 0) {
+                    // Look backwards from Nome for the nearest Assunto:, Protocolo: or Processo:
+                    const beforeNome = block.slice(0, nomePos);
+                    const lastAssunto = beforeNome.lastIndexOf('Assunto:');
+                    const lastProtocolo = beforeNome.lastIndexOf('Protocolo:');
+                    const lastProcesso = beforeNome.lastIndexOf('Processo:');
+                    trimStart = Math.max(0, lastAssunto, lastProtocolo, lastProcesso);
+                }
+
+                // End position: ~1500 chars after the start to capture the full record
+                const trimEnd = Math.min(block.length, trimStart + 1500);
+                const trimmedBlock = block.slice(trimStart, trimEnd);
+
+                const cleanText = trimmedBlock.replace(/__PAGE_START_\d+__/g, '\n[QUEBRA DE PÁGINA]\n').trim();
 
                 results.push({
                     page: pageDisplay,

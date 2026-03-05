@@ -23,7 +23,6 @@ export interface NoticeConfig {
     city: string;
     school: string;
     date: string;
-    generateSmec?: boolean;
 }
 
 export const DEFAULT_TRIGGERS = [
@@ -47,8 +46,8 @@ export const DEFAULT_TRIGGERS = [
 ];
 
 export const SCHOOLS_BY_CITY: Record<string, string[]> = {
-    "Almirante Tamandaré do Sul": ["EEEM Almirante Tamandaré"],
-    "Barra Funda": ["EEEB Antônio João Zandoná"],
+    "Almirante Tamandaré do Sul": ["EEEM Almirante Tamandaré", "SMEC de Almirante Tamandaré do Sul"],
+    "Barra Funda": ["EEEB Antônio João Zandoná", "SMEC de Barra Funda"],
     "Carazinho": [
         "EEEB Érico Veríssimo",
         "EEEF Carlinda de Britto",
@@ -65,31 +64,33 @@ export const SCHOOLS_BY_CITY: Record<string, string[]> = {
         "EEPROCAR",
         "IEE Cruzeiro do Sul",
         "NEEJA Felipe Roberto Sehn",
-        "EEIEF Kame Mre Kanhrukre"
+        "EEIEF Kame Mre Kanhrukre",
+        "SMEC de Carazinho"
     ],
-    "Chapada": ["EEEF Aloysio Hofer", "EEEF Israelina Martins Silveira", "IEE Júlia Billiart"],
-    "Colorado": ["EEEM Armindo Edwino Schwengber"],
-    "Constantina": ["EEEF Medeiros e Albuquerque", "EEEM São José", "EEIEF Tanhve Kregso"],
-    "Coqueiros do Sul": ["EEEB José Gomes Portinho"],
-    "Engenho Velho": ["EEEM Floriano Peixoto"],
-    "Não-Me-Toque": ["IEE São Francisco Solano", "EEEF Geny Vieira da Cunha"],
-    "Nova Boa Vista": ["EEEM Antonio Mathias Anschau"],
-    "Novo Xingu": ["EEEM Gottfried Thomas Westerich"],
-    "Ronda Alta": ["EEEB Professor Alfredo Gavioli", "EEEF Herculino Baldissarella", "EEEF Isabel de Orleans", "EEIEF Luiz Kónhko"],
-    "Rondinha": ["EEEB Conde D'Eu"],
-    "Saldanha Marinho": ["EEEB Alfredo Ferrari"],
-    "Santa Bárbara do Sul": ["CE Blau Nunes", "EEEF 19 de Novembro"],
-    "Santo Antônio do Planalto": ["EEEM Santo Antônio"],
+    "Chapada": ["EEEF Aloysio Hofer", "EEEF Israelina Martins Silveira", "IEE Júlia Billiart", "SMEC de Chapada"],
+    "Colorado": ["EEEM Armindo Edwino Schwengber", "SMEC de Colorado"],
+    "Constantina": ["EEEF Medeiros e Albuquerque", "EEEM São José", "EEIEF Tanhve Kregso", "SMEC de Constantina"],
+    "Coqueiros do Sul": ["EEEB José Gomes Portinho", "SMEC de Coqueiros do Sul"],
+    "Engenho Velho": ["EEEM Floriano Peixoto", "SMEC de Engenho Velho"],
+    "Não-Me-Toque": ["IEE São Francisco Solano", "EEEF Geny Vieira da Cunha", "SMEC de Não-Me-Toque"],
+    "Nova Boa Vista": ["EEEM Antonio Mathias Anschau", "SMEC de Nova Boa Vista"],
+    "Novo Xingu": ["EEEM Gottfried Thomas Westerich", "SMEC de Novo Xingu"],
+    "Ronda Alta": ["EEEB Professor Alfredo Gavioli", "EEEF Herculino Baldissarella", "EEEF Isabel de Orleans", "EEIEF Luiz Kónhko", "SMEC de Ronda Alta"],
+    "Rondinha": ["EEEB Conde D'Eu", "SMEC de Rondinha"],
+    "Saldanha Marinho": ["EEEB Alfredo Ferrari", "SMEC de Saldanha Marinho"],
+    "Santa Bárbara do Sul": ["CE Blau Nunes", "EEEF 19 de Novembro", "SMEC de Santa Bárbara do Sul"],
+    "Santo Antônio do Planalto": ["EEEM Santo Antônio", "SMEC de Santo Antônio do Planalto"],
     "Sarandi": [
         "EEEB Dr. José Maria de Castro",
         "EEEF Dom José Coutinho",
         "EEEF Dr João Carlos Machado",
-        "EEEF Pe. Manoel Gonzales",
+        "EEEM Pe. Manoel Gonzales",
         "EEEF Sepé Tiaraju",
-        "EEEM Dr Aldo Conte"
+        "EEEM Dr Aldo Conte",
+        "SMEC de Sarandi"
     ],
-    "Tio Hugo": ["EEEM de Tio Hugo"],
-    "Três Palmeiras": ["EEEM José Antônio Ferronato"],
-    "Trindade do Sul": ["EEEF Antônio Mânica", "EEEM Zenir Ghizzi da Silva"],
-    "Victor Graeff": ["JOMAC"]
+    "Tio Hugo": ["EEEM de Tio Hugo", "SMEC de Tio Hugo"],
+    "Três Palmeiras": ["EEEM José Antônio Ferronato", "SMEC de Três Palmeiras"],
+    "Trindade do Sul": ["EEEF Antônio Mânica", "EEEM Zenir Ghizzi da Silva", "SMEC de Trindade do Sul"],
+    "Victor Graeff": ["JOMAC", "SMEC de Victor Graeff"]
 };

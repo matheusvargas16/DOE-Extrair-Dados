@@ -82,18 +82,13 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
   return (
     <div className="print-only">
       {items.map((item, itemIdx) => {
-        const isDisposicao = getWinnerLabel(item.originalText) === 'DISPOSIÇÃO';
-        const showSmecCopy = isDisposicao || configs[itemIdx]?.generateSmec;
         const city = configs[itemIdx]?.city || '_________________';
-        const smecLabel = `SMEC de ${city}`;
+        const schoolField = configs[itemIdx]?.school || '_________________';
 
         return (
           <div key={itemIdx} className="notices-grid">
-            {/* Copy 0 = Escola, Copy 1 = SMEC (when Disposição) or identical copy */}
+            {/* Copy 0 and Copy 1 = identical copies */}
             {[0, 1].map((copyIdx) => {
-              const schoolField = (showSmecCopy && copyIdx === 1)
-                ? smecLabel
-                : (configs[itemIdx]?.school || '_________________');
 
               return (
                 <div key={`${itemIdx}-${copyIdx}`} className="notice-page-segment">
