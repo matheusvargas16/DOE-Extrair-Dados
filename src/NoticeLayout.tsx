@@ -17,10 +17,9 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
     ["Revoga", "Retifica"],
     ["Apostila", "Designa"],
     ["Enquadra", "Coloca"],
-    ["Declara estável", "Aposenta"],
-    ["Aut. afastamento", "Declara empossado"],
-    ["Regularização Funcional", "Exonera"],
-    ["Disposição", ""]
+    ["Aposenta", "Aut. afastamento"],
+    ["Declara empossado", "Regularização Funcional"],
+    ["Exonera", "Disposição"]
   ];
 
   const getWinnerLabel = (fullText: string) => {
@@ -42,7 +41,7 @@ export const NoticeLayout: React.FC<NoticeLayoutProps> = ({ items, configs, doeD
       { label: "DESIGNA", keywords: ["DESIGNA"] },
       { label: "ENQUADRA", keywords: ["ENQUADRA"] },
       { label: "COLOCA", keywords: ["COLOCA"] },
-      { label: "DECLARA ESTÁVEL", keywords: ["DECLARA ESTAVEL"] },
+
       { label: "APOSENTA", keywords: ["APOSENTA"] },
       { label: "AUT. AFASTAMENTO", keywords: ["AUT. AFASTAMENTO", "AFASTAMENTO"] },
       { label: "DECLARA EMPOSSADO", keywords: ["DECLARA EMPOSSADO"] },
