@@ -91,6 +91,6 @@ export const SCHOOLS_BY_CITY: Record<string, string[]> = {
     ],
     "Tio Hugo": ["EEEM de Tio Hugo", "SMEC de Tio Hugo"],
     "Três Palmeiras": ["EEEM José Antônio Ferronato", "SMEC de Três Palmeiras"],
-    "Trindade do Sul": ["EEEF Antônio Mânica", "EEEM Zenir Ghizzi da Silva", "SMEC de Trindade do Sul"],
+    "Trindade do Sul": ["EEEF Antônio Mânica", "EEEM Zenir Ghizzi da Silva", "EEEF Ivania de Oliveira", "EEEF Felice Campanhoni", "SMEC de Trindade do Sul"],
     "Victor Graeff": ["JOMAC", "SMEC de Victor Graeff"]
 };
